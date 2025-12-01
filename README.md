@@ -1,153 +1,200 @@
-### 🏥 Insurance Claims Management System — Backend
+### 🚀 Hospital Insurance Claim Management System — Backend (SAAS Edition)
 
-This is the backend API for the Insurance Claims Management System (ICMS).
-Built with Node.js + TypeScript + Express + TypeORM + PostgreSQL, it provides secure REST APIs for managing users, policies, claims, insurers, service providers (hospital/workshop), and agents/TPAs.
+    This is the backend API for the Hospital Insurance Claim Management System (HICMS) — a full SAAS platform for hospitals, doctors, and staff to manage insurance policies, patient documents, claims, and subscription billing.
 
-### 🚀 Overview
+    Built using Node.js + TypeScript + Express + TypeORM + PostgreSQL, the system includes authentication, doctor/staff hierarchy, patient claim workflow, and SAAS subscription plans.
 
-* Node.js + Express API server
-* TypeScript for type safety
-* PostgreSQL + TypeORM for data persistence
-* JWT Authentication & Role-based Access Control (RBAC)
-* REST APIs for customers, insurers, agents & service providers
-* Modular architecture with services, controllers & entities
+### 🌐 System Roles
+| Role           | Description                                               |
+| -------------- | --------------------------------------------------------- |
+| **SuperAdmin** | Manages entire SAAS system, subscription plans, hospitals |
+| **Doctor**     | Hospital owner/admin, manages staff, policies, all claims |
+| **Staff**      | Uploads patient documents, files claims, updates details  |
 
-### ✨ Features
-🔐 Authentication
+❌ No customer, insurer, TPA, workshop — system simplified based on your new requirements.
 
-* JWT-based login
-* Role-based access control (customer, insurer, agent/TPA, service provider, admin)
-* Secure password hashing with bcrypt
-* Global error handling & validation
+### 🎯 Core Features
 
-### 📂 Core Modules
+*   🔐 Authentication & Access Control
 
-* User Management — register, login, role-based profile access
-* Policy Management — add, update, delete, list policies
-* Claims Management — raise claim, approve/reject by insurer/TPA
-* Insurer Management — manage insurance companies issuing policies
-* Service Providers — hospital/workshop login for claim processing
-* Agent/TPA Management — claim handling and approvals
+        JWT authentication
+        Role-based permissions (SuperAdmin, Doctor, Staff)
+        Secure bcrypt password hashing
+        Middleware-based route protection
 
-### 🗝️ Role Permissions
+*   🏥 Hospital-Level Features
 
-| Feature / Action         | Admin | Customer | Insurer | Agent/TPA | Provider |
-| ------------------------ | :---: | :------: | :-----: | :-------: | :------: |
-| Register / Login         |   ✔   |     ✔    |    ✔    |     ✔     |     ✔    |
-| Manage Users & Roles     |   ✔   |     ✖    |    ✖    |     ✖     |     ✖    |
-| Buy Policies             |   ✖   |     ✔    |    ✖    |     ✖     |     ✖    |
-| Issue Policies           |   ✖   |     ✖    |    ✔    |     ✖     |     ✖    |
-| View Policies            |   ✔   |  ✔ (own) |    ✔    |     ✔     |     ✔    |
-| Raise Claims             |   ✖   |     ✔    |    ✖    |     ✖     |     ✖    |
-| Approve/Reject Claims    |   ✖   |     ✖    |    ✔    |     ✔     |     ✔    |
-| Delete Policies / Claims |   ✔   |     ✖    |    ✔    |     ✖     |     ✖    |
+        Doctor creates/manage hospital
+        Doctor onboard staff users
+        Staff handles patient onboarding, document uploads, and claim initiation
+        Doctor monitors all policies, claims, revenue, hospital-level analytics
 
-### 🛠️ Tech Stack
+*   📄 Policy Management
 
-* Node.js with Express
-* TypeScript
-* TypeORM (PostgreSQL)
-* routing-controllers (decorator-based routing)
-* typedi (dependency injection)
-* class-validator & class-transformer
-* bcrypt for password hashing
-* jsonwebtoken for JWT auth
-* Helmet, CORS, Compression for security & performance
-* Winston / Morgan for logging
+        Doctor (Admin) adds policies
+        Staff assigns policies to patients
+        Policy status track (Pending, Active, Rejected, Completed, etc.)
 
-### 📂 Folder Structure
+*   👨‍⚕️ Patient Management
 
-backend/
-├── src/
-│   ├── config/           # DB + environment config
-│   ├── controllers/      # Route controllers
-│   ├── entity/           # TypeORM entities
-│   ├── middleware/       # Auth, logging, error handling
-│   ├── services/         # Business logic
-│   ├── utils/            # Helpers (ApiError, messages, etc.)
-│   └── index.ts          # App entry
-├── migrations/           # DB migrations
-├── appData/              # Static storage (uploads, docs)
-├── package.json
-├── tsconfig.json
-├── ormconfig.ts
-└── .env.example
+        Staff registers patient
+        Staff uploads patient insurance documents
+        Doctor reviews
 
-### ⚙️ Environment Variables
+*   📁 Document Management
 
-Create .env.local for development:
+        Multiple document uploads
+        Secure storage in appData/uploads
+        Tracks document status: Uploaded → Verified → Rejected
 
-NODE_ENV=local
-PORT=8000
+*   🧾 Claims Workflow
 
-*  Database
+        Staff submits claim
+        Doctor validates and approves/rejects
+        Real-time claim status history tracking (timeline)
+
+*   💳 SAAS Subscription Management
+
+        For Hospitals:
+        Subscription plan creation (SuperAdmin)
+        Monthly / Yearly plans
+        Hospital subscription activation / expiry tracking
+
+### 🛠 Tech Stack
+
+    Node.js + Express
+    TypeScript
+    TypeORM (PostgreSQL)
+    class-validator + DTOs
+    typedi (Dependency Injection)
+    JWT Authentication
+    bcrypt password hashing
+    Helmet, CORS
+    Winston logging
+    Multer for file uploads
+
+### 📂 Final Folder Structure
+    backend/
+    ├── src/
+    │   ├── config/             # DB & environment configuration
+    │   ├── controllers/        # REST API controllers
+    │   ├── entity/             # All TypeORM entities (User, Hospital, Policy...)
+    │   ├── middleware/         # Auth, Error handler, Logger
+    │   ├── services/           # Business logic per module
+    │   ├── utils/              # Helpers (ApiError, JwtUtil, etc.)
+    │   └── index.ts            # Application entry file
+    ├── migrations/             # TypeORM migrations
+    ├── appData/
+    │   └── uploads/            # Uploaded patient documents
+    ├── package.json
+    ├── tsconfig.json
+    ├── ormconfig.ts
+    └── .env.example
+
+### ⚙️ Environment Variables (.env.example)
+    NODE_ENV=local
+    PORT=8000
+
+# Database
 DB_HOST=localhost
 DB_PORT=5432
-DB_USERNAME=your_pg_username
-DB_PASSWORD=your_pg_password
-DB_DATABASE=insurance_db
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_DATABASE=hospital_claims
 
-* JWT
+# JWT
 JWT_SECRET=your_jwt_secret
 JWT_ACCESS_EXPIRATION=1d
 
-* CORS
+# CORS
 CORS_ORIGIN=http://localhost:5173
 
-### 📦 Installation & Run
-
-1. Clone the repo
-
-git clone https://github.com/your-username/insurance-claims-backend.git
-cd insurance-claims-backend
+📦 Installation
+1. Clone project
+git clone https://github.com/your/hospital-claims-saas-backend.git
+cd hospital-claims-saas-backend
 
 2. Install dependencies
 npm install
 
 3. Setup environment
-Create .env.local (see above)
+
+Create .env.local using .env.example.
 
 4. Run migrations
 npm run migration:run
 
-5. Start in dev mode
+5. Start server
 npm run serve
 
-Server runs at: http://localhost:8000
 
-### 🔗 API Endpoints
+Server runs at:
 
-* Auth
-    * POST /api/user/add — register new user
-    * POST /api/user/login — login
+👉 http://localhost:8000
 
-* Policy
-    * GET /api/policy/list
-    * POST /api/policy/add (insurer issues policy, customer buys policy)
-    * PUT /api/policy/update?policyId=
-    * DELETE /api/policy/delete?policyId=
+### 🔗 API Endpoints (Updated for SAAS Model)
+    🔐 Auth
+    Method	Endpoint	Role
+    POST	/api/auth/register	SuperAdmin / Doctor
+    POST	/api/auth/login	All
 
-* Claims
-    * GET /api/claim/list
-    * POST /api/claim/add (customer raises claim)
-    * PUT /api/claim/update?claimId= (insurer/TPA updates status)
-    * DELETE /api/claim/delete?claimId=
+    🏥 Hospital
+    Method	Endpoint	Role
+    POST	/api/hospital/create	Doctor
+    GET	/api/hospital/details	Doctor
+    
+    👨‍⚕️ Doctor
+    Method	Endpoint	Role
+    GET	/api/doctor/me	Doctor
 
-* Insurer / Providers
-    * GET /api/insurer/list
-    *  POST /api/insurer/add
-    * GET /api/provider/list
-    * POST /api/provider/add
+    👨‍💼 Staff
+    Method	Endpoint	Role
+    POST	/api/staff/add	Doctor
+    GET	/api/staff/list	Doctor
 
-### 🛡️ Security
+    🧑‍⚕️ Patient
+    Method	Endpoint	Role
+    POST	/api/patient/add	Staff
+    GET	/api/patient/list	Staff / Doctor
 
-* All protected routes require JWT:
-* Authorization: Bearer <token>
-* Roles enforced using @Authorized([role]) decorators
-* Input validated with class-validator
-* Secure headers with Helmet, restricted origins with CORS
+    📁 Patient Documents
+    Method	Endpoint	Role
+    POST	/api/patient-document/upload	Staff
+    GET	/api/patient-document/list	Doctor / Staff
 
-### 📝 License
+    📝 Policy
+    Method	Endpoint	Role
+    POST	/api/policy/add	Doctor
+    GET	/api/policy/list	Doctor / Staff
 
-* Developed by Hariom Verma
-* Insurance Claims Management System — Backend
+    🧾 Claim
+    Method	Endpoint	Role
+    POST	/api/claim/add	Staff
+    GET	/api/claim/list	Doctor / Staff
+    PUT	/api/claim/status/update	Doctor
+    GET	/api/claim/history/:id	Doctor / Staff
+
+### 💳 Subscription Plans (SAAS)
+
+*   (SuperAdmin only)
+        Method	Endpoint	Description
+        POST	/api/subscription-plan/add	Create plan
+        GET	/api/subscription-plan/list	List all plans
+
+*   💼 Hospital Subscription
+        Method	Endpoint	Role
+        POST	/api/subscription/start	Doctor
+        GET	/api/subscription/status	Doctor
+
+*   🛡️ Security
+
+        JWT required for all protected endpoints
+        @Authorized([roles]) based access control
+        Input validation using DTOs + class-validator
+        Sanitized headers using Helmet
+        Restricted CORS origin
+
+*   👨‍💻 Developer
+
+        Hariom Verma
+        Hospital Insurance Claim Management System — SAAS Backend
