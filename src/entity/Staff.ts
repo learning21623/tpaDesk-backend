@@ -11,7 +11,7 @@ import { User } from "./Users";
 import { Doctor } from "./Doctor";
 import { Hospital } from "./Hospital";
 
-@Entity()
+@Entity({ name: "staff" })
 export class Staff {
   @PrimaryGeneratedColumn()
   id!: number;

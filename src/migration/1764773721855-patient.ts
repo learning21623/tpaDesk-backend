@@ -1,23 +1,18 @@
-import { MigrationInterface, QueryRunner, Table,  TableForeignKey } from "typeorm";
+import { MigrationInterface, QueryRunner , Table, TableForeignKey} from "typeorm";
 
-export class Patient1764573619406 implements MigrationInterface {
+export class Patient1764773721855 implements MigrationInterface {
 
-    public async up(q: QueryRunner): Promise<void> {
+   public async up(q: QueryRunner): Promise<void> {
     await q.createTable(
       new Table({
         name: "patient",
         columns: [
           { name: "id", type: "int", isPrimary: true, isGenerated: true, generationStrategy: "increment" },
-
           { name: "hospitalId", type: "int" },
-
-          { name: "name", type: "varchar" },
+          { name: "name", type: "varchar", length: "255" },
+          { name: "phone", type: "varchar", isNullable: true },
           { name: "age", type: "int", isNullable: true },
           { name: "gender", type: "varchar", isNullable: true },
-
-          { name: "contactNumber", type: "varchar", isNullable: true },
-          { name: "address", type: "varchar", isNullable: true },
-
           { name: "createdAt", type: "timestamp", default: "now()" },
           { name: "updatedAt", type: "timestamp", default: "now()" }
         ]
@@ -30,12 +25,16 @@ export class Patient1764573619406 implements MigrationInterface {
         columnNames: ["hospitalId"],
         referencedTableName: "hospital",
         referencedColumnNames: ["id"],
-        onDelete: "CASCADE"
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
       })
     );
   }
 
   public async down(q: QueryRunner): Promise<void> {
+    const table = await q.getTable("patient");
+    const fk = table!.foreignKeys.find(f => f.columnNames.indexOf("hospitalId") !== -1);
+    if (fk) await q.dropForeignKey("patient", fk);
     await q.dropTable("patient");
   }
 

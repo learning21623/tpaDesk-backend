@@ -9,7 +9,7 @@ import {
 import { Claim } from "./Claim";
 import { User } from "./Users";
 
-@Entity()
+@Entity({ name: "claim_status_histories" })
 export class ClaimStatusHistory {
   @PrimaryGeneratedColumn()
   id!: number;

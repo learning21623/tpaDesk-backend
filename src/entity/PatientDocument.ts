@@ -10,7 +10,7 @@ import {
 import { Patient } from "./Patient";
 import { Staff } from "./Staff";
 
-@Entity()
+@Entity({ name: "patient_documents" })
 export class PatientDocument {
   @PrimaryGeneratedColumn()
   id!: number;

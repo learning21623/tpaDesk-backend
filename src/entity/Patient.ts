@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import { Hospital } from "./Hospital";
 
-@Entity()
+@Entity({ name: "patients" })
 export class Patient {
   @PrimaryGeneratedColumn()
   id!: number;

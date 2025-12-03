@@ -1,24 +1,17 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
+import { MigrationInterface, QueryRunner,Table, TableForeignKey } from "typeorm";
 
-export class Policy1764573556982 implements MigrationInterface {
+export class Policy1764773789340 implements MigrationInterface {
 
-    public async up(q: QueryRunner): Promise<void> {
+     public async up(q: QueryRunner): Promise<void> {
     await q.createTable(
       new Table({
         name: "policy",
         columns: [
           { name: "id", type: "int", isPrimary: true, isGenerated: true, generationStrategy: "increment" },
-
           { name: "hospitalId", type: "int" },
-          { name: "name", type: "varchar" },
-          { name: "policyNumber", type: "varchar" },
-
-          { name: "sumInsured", type: "decimal", precision: 12, scale: 2, isNullable: true },
-          { name: "premium", type: "decimal", precision: 12, scale: 2, isNullable: true },
-
-          { name: "validFrom", type: "date" },
-          { name: "validTo", type: "date" },
-
+          { name: "name", type: "varchar", length: "255" },
+          { name: "description", type: "text", isNullable: true },
+          { name: "isActive", type: "boolean", default: true },
           { name: "createdAt", type: "timestamp", default: "now()" },
           { name: "updatedAt", type: "timestamp", default: "now()" }
         ]
@@ -31,12 +24,17 @@ export class Policy1764573556982 implements MigrationInterface {
         columnNames: ["hospitalId"],
         referencedTableName: "hospital",
         referencedColumnNames: ["id"],
-        onDelete: "CASCADE"
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
       })
     );
   }
 
   public async down(q: QueryRunner): Promise<void> {
+    const table = await q.getTable("policy");
+    const fk = table!.foreignKeys.find(f => f.columnNames.indexOf("hospitalId") !== -1);
+    if (fk) await q.dropForeignKey("policy", fk);
     await q.dropTable("policy");
   }
+
 }

@@ -1,6 +1,6 @@
-import { MigrationInterface, QueryRunner ,Table, TableForeignKey } from "typeorm";
+import { MigrationInterface, QueryRunner ,Table,TableForeignKey} from "typeorm";
 
-export class Staff1764572804884 implements MigrationInterface {
+export class Staff1764773660966 implements MigrationInterface {
 
     public async up(q: QueryRunner): Promise<void> {
     await q.createTable(
@@ -8,43 +8,55 @@ export class Staff1764572804884 implements MigrationInterface {
         name: "staff",
         columns: [
           { name: "id", type: "int", isPrimary: true, isGenerated: true, generationStrategy: "increment" },
-
           { name: "userId", type: "int" },
           { name: "hospitalId", type: "int" },
-          { name: "doctorId", type: "int", isNullable: true },
-
-          { name: "staffCode", type: "varchar", isNullable: true },
-          { name: "role", type: "varchar", isNullable: true },
-
+          { name: "assignedDoctorId", type: "int", isNullable: true },
           { name: "createdAt", type: "timestamp", default: "now()" },
           { name: "updatedAt", type: "timestamp", default: "now()" }
         ]
       })
     );
 
-    await q.createForeignKeys("staff", [
+    await q.createForeignKey(
+      "staff",
       new TableForeignKey({
         columnNames: ["userId"],
-        referencedTableName: "user",
+        referencedTableName: "users",
         referencedColumnNames: ["id"],
-        onDelete: "CASCADE"
-      }),
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
+      })
+    );
+
+    await q.createForeignKey(
+      "staff",
       new TableForeignKey({
         columnNames: ["hospitalId"],
         referencedTableName: "hospital",
         referencedColumnNames: ["id"],
-        onDelete: "CASCADE"
-      }),
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
+      })
+    );
+
+    await q.createForeignKey(
+      "staff",
       new TableForeignKey({
-        columnNames: ["doctorId"],
+        columnNames: ["assignedDoctorId"],
         referencedTableName: "doctor",
         referencedColumnNames: ["id"],
-        onDelete: "SET NULL"
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
       })
-    ]);
+    );
   }
 
   public async down(q: QueryRunner): Promise<void> {
+    const table = await q.getTable("staff");
+    const fks = table!.foreignKeys;
+    for (const fk of fks) {
+      await q.dropForeignKey("staff", fk);
+    }
     await q.dropTable("staff");
   }
 
