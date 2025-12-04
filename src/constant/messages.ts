@@ -15,6 +15,9 @@ export default {
 
   USER: {
     ADD_USER_SUCCESS: 'User created successfully!',
+    ALREADY_EXISTS: 'User already exists!',
+    NOT_FOUND: 'User not found!',
+    INVALID_CREDENTIALS: 'Invalid credentials!',
     LOGIN_USER_SUCCESS: 'Login User Successfully!',
     LOGIN_USER_FAILED: 'Login user failed!',
     ADD_USER_FAILED: 'User creation failed!',

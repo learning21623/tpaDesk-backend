@@ -1,34 +1,31 @@
 import {
   JsonController,
-  Get,
   Post,
-  Body,
-  Req,
-  Res,
-  QueryParams,
-  Patch,
-  Delete,
+  Get,
   Put,
+  Delete,
+  Body,
+  QueryParams,
   QueryParam,
+  Res
 } from "routing-controllers";
 import { Service } from "typedi";
+import { UserService } from "../../services/UserService";
 import { ResponseService } from "../../services/ResponseService";
 import {
   CreateUser,
-  LoginUser,
   UpdateUser,
   UserId,
-  UserListing,
+  UserLogin
 } from "../../validations/UserValidation";
 import messages from "../../constant/messages";
 import { action, component } from "../../constant/api";
-import { query, Request, Response } from "express";
 import { apiRoute } from "../../utils/apiSemver";
-import { UserService } from "../../services/UserService";
+import { Response } from "express";
 
 @Service()
 @JsonController(apiRoute(component.USER))
-export default class CustomerAdminAuthController {
+export default class UserController {
   constructor(
     private userService: UserService,
     private responseService: ResponseService
@@ -37,248 +34,115 @@ export default class CustomerAdminAuthController {
     this.responseService = new ResponseService();
   }
 
-  // src/controllers/UserController.ts
-
-  //Add New User
-
+  // Create User
   @Post(action.ADD)
-  public async completeUserOnboarding(
-    @Req() req: Request,
-    @Body() userData: CreateUser,
-    @Res() res: Response
-  ) {
+  public async createUser(@Body() body: CreateUser, @Res() res: Response) {
     try {
-      const user = await this.userService.createUser(userData);
+      const data = await this.userService.createUser(body);
+
       return this.responseService.success({
         res,
         message: messages.USER.ADD_USER_SUCCESS,
-        data: user,
+        data
       });
     } catch (error) {
-
-      // Handle other unexpected errors
-      return this.responseService.serverError({
-        res,
-        error,
-      });
+      return this.responseService.serverError({ res, error });
     }
   }
 
-  //Get User Listing
+  // List Users
   @Get(action.LIST)
-  public async getListing(
-    @Req() req: Request,
-    @QueryParams() query: UserListing,
-    @Res() res: Response
-  ) {
+  public async listUsers(@QueryParams() query: any, @Res() res: Response) {
     try {
-      const fetchData = await this.userService.fetchData(query);
-      if (fetchData) {
-        return this.responseService.success({
-          res,
-          message: messages.SUCCESS,
-          data: fetchData,
-        });
-      } else {
-        return this.responseService.noDataFound({
-          res,
-          message: messages.NOT_FOUND,
-        });
-      }
-    } catch (error) {
-      return this.responseService.serverError({
+      const data = await this.userService.fetchUsers(query);
+
+      return this.responseService.success({
         res,
-        error,
+        message: messages.USER.USER_LISTING_SUCCESS,
+        data
       });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
     }
   }
 
+  // User Details
   @Get(action.DETAIL)
-  public async getUserDetails(
-    @Req() req: Request,
-    @QueryParams() query: UserId,
-    @Res() res: Response
-  ) {
+  public async getDetails(@QueryParams() query: UserId, @Res() res: Response) {
     try {
-      const fetchData = await this.userService.fetchDetails(query);
-      if (fetchData) {
-        return this.responseService.success({
-          res,
-          message: messages.SUCCESS,
-          data: fetchData,
-        });
-      } else {
+      const data = await this.userService.fetchDetails(query);
+
+      if (!data) {
         return this.responseService.noDataFound({
           res,
-          message: messages.NOT_FOUND,
+          message: messages.USER.NOT_FOUND
         });
       }
-    } catch (error) {
-      return this.responseService.serverError({
+
+      return this.responseService.success({
         res,
-        error,
+        message: messages.USER.USER_FETCH,
+        data
       });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
     }
   }
 
-  //Update User
+  // Update User
   @Put(action.UPDATE)
   public async updateUser(
-    @Req() req: Request,
     @QueryParams() query: UserId,
-    @Body() body: any, // 👈 Add this line to get data from the request body
+    @Body() body: UpdateUser,
     @Res() res: Response
   ) {
     try {
-      // Pass both the body and the query to the service method
-      const fetchData = await this.userService.updateUsers(body, query); // 👈 Correctly pass two arguments
+      const updated = await this.userService.updateUser(body, query);
 
-      if (fetchData) {
-        return this.responseService.success({
-          res,
-          message: messages.SUCCESS,
-          data: fetchData,
-        });
-      } else {
-        return this.responseService.noDataFound({
-          res,
-          message: messages.NOT_FOUND,
-        });
-      }
-    } catch (error) {
-      return this.responseService.serverError({
+      return this.responseService.success({
         res,
-        error,
+        message: messages.USER.USER_UPDATE_SUCCESS,
+        data: updated
       });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
     }
   }
 
-  //Delete User
+  // Delete User
   @Delete(action.DELETE)
   public async deleteUser(
-    @Res() res: Response,
-    @QueryParam('userId') userId: number,
-    @Req() req: Request
+    @QueryParam("id") id: number,
+    @Res() res: Response
   ) {
     try {
-      console.log('Deleting user with ID:', userId); // add this to confirm
-
-      await this.userService.deleteUser(userId);
+      await this.userService.deleteUser(id);
 
       return this.responseService.success({
         res,
-        message: 'User deleted successfully',
+        message: messages.USER.DELETE_USER_SUCCESS
       });
     } catch (error) {
-      return this.responseService.serverError({
-        res,
-        error: error.message,
-      });
+      return this.responseService.serverError({ res, error });
     }
   }
 
-  // src/controllers/AuthController.ts
-
+  // Login User
   @Post(action.LOGIN)
-  public async loginUser(
-    @Body({ validate: true }) user: LoginUser,
-    @Res() res: Response
-  ) {
+  public async login(@Body() body: UserLogin, @Res() res: Response) {
     try {
-      const result = await this.userService.loginUser(user);
+      const data = await this.userService.login(body);
 
-      return res.status(200).json({
-        message: 'Login successful!',
-        responseCode: 200,
-        data: result,
+      return this.responseService.success({
+        res,
+        message: messages.USER.LOGIN_USER_SUCCESS,
+        data: {
+          user: data.user,
+          token: data.token,
+        }
       });
     } catch (error) {
-      return res.status(400).json({
-        message: 'Login user failed!',
-        responseCode: 400,
-        error: error.message,
-      });
+      return this.responseService.serverError({ res, error });
     }
   }
-
-  @Post(action.LOGOUT)
-  public async logoutUser(
-    @Req() req: Request,
-    @Res() res: Response
-  ) {
-    try {
-      const result = await this.userService.logoutUser(req, res);
-
-      return res.status(200).json({
-        message: result.message,
-        responseCode: 200,
-      });
-    } catch (error: any) {
-      return res.status(500).json({
-        message: 'Logout failed',
-        responseCode: 500,
-        error: error.message,
-      });
-    }
-  }
-
-  // In src/controllers/UserController.ts (CustomerAdminAuthController)
-
-@Get(action.USER_CUSTOMER)
-public async getCustomerUsers(
-  @Res() res: Response
-) {
-  try {
-    const fetchData = await this.userService.fetchUsersByRole("customer");
-
-    if (fetchData.count > 0) {
-      return this.responseService.success({
-        res,
-        message: "Customer users fetched successfully",
-        data: fetchData,
-      });
-    } else {
-      return this.responseService.noDataFound({
-        res,
-        message: "No customer users found",
-      });
-    }
-  } catch (error) {
-    return this.responseService.serverError({
-      res,
-      error,
-    });
-  }
-}
-
-@Get(action.USER_INSURER)
-public async getInsurerUsers(
-  @Res() res: Response
-) {
-  try {
-    const fetchData = await this.userService.fetchUsersByRole("insurer");
-
-    if (fetchData.count > 0) {
-      return this.responseService.success({
-        res,
-        message: "Insurer users fetched successfully",
-        data: fetchData,
-      });
-    } else {
-      return this.responseService.noDataFound({
-        res,
-        message: "No insurer users found",
-      });
-    }
-  } catch (error) {
-    return this.responseService.serverError({
-      res,
-      error,
-    });
-  }
-}
-
-
-
-
 }
