@@ -1,15 +1,26 @@
-import { IsNotEmpty, IsString, MinLength } from "class-validator";
-import validationConstants from "../constant/validationConstants";
+import { IsNotEmpty, IsString, IsOptional } from "class-validator";
 
 export class CreateRole {
-  @IsNotEmpty({ message: validationConstants.REQUIRED })
-  @IsString({ message: validationConstants.IS_STRING_TYPE })
-  @MinLength(3)
+  @IsString()
+  @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }
 
 export class UpdateRole {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+export class RoleId {
+  @IsNotEmpty()
+  id: number;
 }

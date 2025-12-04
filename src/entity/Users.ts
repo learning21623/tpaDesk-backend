@@ -29,11 +29,11 @@ export class User {
   @Column({ nullable: true, length: 15 })
   mobile?: string;
 
-  @ManyToOne(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users,  { onDelete: "SET NULL" })
   @JoinColumn({ name: "roleId" })
   role!: Role;
 
-  @Column()
+  @Column({ nullable: true })
   roleId!: number;
 
   @CreateDateColumn()

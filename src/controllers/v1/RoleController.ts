@@ -1,56 +1,134 @@
-// import {
-//   JsonController, Post, Get, Put, Delete, Body, QueryParam, Res, UseBefore
-// } from "routing-controllers";
-// import { Service } from "typedi";
-// import { Response } from "express";
-// import { RoleService } from "../../services/RoleService";
-// import { ResponseService } from "../../services/ResponseService";
-// import { CreateRole, UpdateRole } from "../../validations/RoleValidation";
-// import { apiRoute } from "../../utils/apiSemver";
-// import { component, action } from "../../constant/api";
-// import { authenticate } from "../../middleware/auth";
-// import { authorizeRoles } from "../../middleware/rbac";
+import {
+  JsonController,
+  Post,
+  Get,
+  Put,
+  Delete,
+  Body,
+  QueryParams,
+  QueryParam,
+  Res,
+  Req
+} from "routing-controllers";
+import { Service } from "typedi";
+import { RoleService } from "../../services/RoleService";
+import { ResponseService } from "../../services/ResponseService";
+import { CreateRole, UpdateRole, RoleId } from "../../validations/RoleValidation";
+import messages from "../../constant/messages";
+import { action, component } from "../../constant/api";
+import { apiRoute } from "../../utils/apiSemver";
+import { Request, Response } from "express";
 
-// @Service()
-// @JsonController(apiRoute(component.ROLE))
-// @UseBefore(authenticate)                 // 1. Decodes JWT, sets req.user
-// @UseBefore(authorizeRoles('admin'))
-// export class RoleController {
-//   constructor(
-//     private roleService: RoleService,
-//     private responseService: ResponseService
-//   ) {}
+@Service()
+@JsonController(apiRoute(component.ROLE))
+export default class RoleController {
+  constructor(
+    private roleService: RoleService,
+    private responseService: ResponseService
+  ) {
+    this.roleService = new RoleService();
+    this.responseService = new ResponseService();
+  }
 
-//   @Post(action.ADD)
-//   async create(@Body() body: CreateRole, @Res() res: Response) {
-//     const role = await this.roleService.createRole(body.name);
-//     return this.responseService.success({
-//       res, data: role, message: "Role created successfully"
-//     });
-//   }
+  // ============ ADD ROLE ============
+  @Post(action.ADD)
+  public async createRole(
+    @Body() body: CreateRole,
+    @Res() res: Response
+  ) {
+    try {
+      const data = await this.roleService.createRole(body);
 
-//   @Get(action.LIST)
-//   async list(@Res() res: Response) {
-//     const roles = await this.roleService.listRoles();
-//     return this.responseService.success({ res, data: roles });
-//   }
+      return this.responseService.success({
+        res,
+        message: messages.ROLE.ADD_ROLE_SUCCESS,
+        data,
+      });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
+    }
+  }
 
-//   @Put(action.UPDATE)
-//   async update(
-//     @QueryParam("roleId") roleId: number,
-//     @Body() body: UpdateRole,
-//     @Res() res: Response
-//   ) {
-//     const role = await this.roleService.updateRole(roleId, body.name);
-//     return this.responseService.success({ res, data: role });
-//   }
+  // ============ LIST ============
+  @Get(action.LIST)
+  public async listRoles(
+    @QueryParams() query: any,
+    @Res() res: Response
+  ) {
+    try {
+      const data = await this.roleService.fetchRoles(query);
 
-//   @Delete(action.DELETE)
-//   async remove(
-//     @QueryParam("roleId") roleId: number,
-//     @Res() res: Response
-//   ) {
-//     await this.roleService.deleteRole(roleId);
-//     return this.responseService.success({ res, message: "Role deleted successfully" });
-//   }
-// }
+      return this.responseService.success({
+        res,
+        message: messages.ROLE.ROLE_LISTING_SUCCESS,
+        data,
+      });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
+    }
+  }
+
+  // ============ DETAILS ============
+  @Get(action.DETAIL)
+  public async getDetails(
+    @QueryParams() query: RoleId,
+    @Res() res: Response
+  ) {
+    try {
+      const data = await this.roleService.fetchDetails(query);
+
+      if (!data) {
+        return this.responseService.noDataFound({
+          res,
+          message: messages.ROLE.NOT_FOUND,
+        });
+      }
+
+      return this.responseService.success({
+        res,
+        message: messages.ROLE.ROLE_FETCH,
+        data,
+      });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
+    }
+  }
+
+  // ============ UPDATE ============
+  @Put(action.UPDATE)
+  public async updateRole(
+    @QueryParams() query: RoleId,
+    @Body() body: UpdateRole,
+    @Res() res: Response
+  ) {
+    try {
+      const updated = await this.roleService.updateRole(body, query);
+
+      return this.responseService.success({
+        res,
+        message: messages.ROLE.ROLE_UPDATE_SUCCESS,
+        data: updated,
+      });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
+    }
+  }
+
+  // ============ DELETE ============
+  @Delete(action.DELETE)
+  public async deleteRole(
+    @QueryParam("id") id: number,
+    @Res() res: Response
+  ) {
+    try {
+      await this.roleService.deleteRole(id);
+
+      return this.responseService.success({
+        res,
+        message: messages.ROLE.ROLE_DELETED,
+      });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
+    }
+  }
+}

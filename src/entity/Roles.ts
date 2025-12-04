@@ -12,7 +12,10 @@ export class Role {
   id!: number;
 
   @Column({ unique: true, length: 50 })
-  name!: string; // "doctor", "staff", "admin"
+  name!: string;
+
+  @Column({ type: "varchar", length: 255, nullable: true })
+  description!: string | null;
 
   @OneToMany(() => User, (user) => user.role)
   users!: User[];
