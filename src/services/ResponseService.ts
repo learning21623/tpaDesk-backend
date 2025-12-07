@@ -51,7 +51,7 @@ interface noDataFoundOptions {
 @Service()
 export class ResponseService {
   error(arg0: { res: Response<any, Record<string, any>>; message: string; statusCode: number; }) {
-      throw new Error("Method not implemented.");
+    throw new Error("Method not implemented.");
   }
   public devMode = config.showErrorStack;
 
@@ -74,7 +74,7 @@ export class ResponseService {
 
 
 
-  
+
   /**
    * Send a validation error message 422 code, with message , status and response
    * @param opts
@@ -195,6 +195,19 @@ export class ResponseService {
       error: this.devMode ? error instanceof Error && error.stack : null,
       responseCode: responseCode,
       FTA: responseFTA
+    });
+  }
+  forbidden(opts: failureOptions) {
+    const {
+      res,
+      message = httpStatus['403_NAME'],
+      status = httpStatus.FORBIDDEN,
+      FTA
+    } = opts;
+    return res.status(status).json({
+      message,
+      responseCode: status,
+      FTA
     });
   }
 }

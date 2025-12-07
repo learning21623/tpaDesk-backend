@@ -37,9 +37,11 @@ async function start() {
 
     // Set up controller-based routes with CORS enabled
     useExpressServer(app, {
-      cors: config.corsOptions, // Now it works with routing-controllers
+      cors: config.corsOptions,
       controllers: [path.join(__dirname, '/controllers/v*/*Controller.{ts,js}')],
+      middlewares: [path.join(__dirname, '/middleware/*.{ts,js}')],
     });
+
 
 
     app.listen(config.port, () => {

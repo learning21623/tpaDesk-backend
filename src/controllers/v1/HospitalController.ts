@@ -7,10 +7,13 @@ import {
   Body,
   QueryParams,
   QueryParam,
-  Res
+  Res,
+  Req,
+  UseBefore
 } from "routing-controllers";
+
 import { Service } from "typedi";
-import { Response } from "express";
+import { Response, Request } from "express";
 
 import { HospitalService } from "../../services/HospitalService";
 import { ResponseService } from "../../services/ResponseService";
@@ -18,8 +21,10 @@ import { ResponseService } from "../../services/ResponseService";
 import {
   CreateHospital,
   UpdateHospital,
-  HospitalId 
+  HospitalId
 } from "../../validations/HospitalValidation";
+
+import { AuthMiddleware } from "../../middleware/AuthMiddleware";
 
 import messages from "../../constant/messages";
 import { action, component } from "../../constant/api";
@@ -27,17 +32,29 @@ import { apiRoute } from "../../utils/apiSemver";
 
 @Service()
 @JsonController(apiRoute(component.HOSPITAL))
+@UseBefore(AuthMiddleware)   // 🔥 apply middleware to all hospital routes
 export default class HospitalController {
-  // Rely on TypeDI for dependency injection. The manual new Service() calls are removed.
   constructor(
     private hospitalService: HospitalService,
     private responseService: ResponseService
-  ) {} 
+  ) { }
 
   // Create Hospital
   @Post(action.ADD)
-  public async createHospital(@Body() body: CreateHospital, @Res() res: Response) {
+  public async createHospital(
+    @Body() body: CreateHospital,
+    @Req() req: Request & { user?: any },
+    @Res() res: Response
+  ) {
     try {
+      // Role check
+      if (req.user?.role !== "superAdmin") {
+        return this.responseService.forbidden({
+          res,
+          message: "You are not authorized to create hospital"
+        });
+      }
+
       const data = await this.hospitalService.createHospitals(body);
 
       return this.responseService.success({
@@ -50,7 +67,7 @@ export default class HospitalController {
     }
   }
 
-  // List (Uses @QueryParams to inject all query parameters into the 'query' object)
+  // Get List
   @Get(action.LIST)
   public async listHospitals(@QueryParams() query: any, @Res() res: Response) {
     try {
@@ -66,7 +83,7 @@ export default class HospitalController {
     }
   }
 
-  // Details (Uses @QueryParams with the HospitalId class/interface)
+  // Details by ID
   @Get(action.DETAIL)
   public async getDetails(@QueryParams() query: HospitalId, @Res() res: Response) {
     try {
@@ -89,7 +106,7 @@ export default class HospitalController {
     }
   }
 
-  // Update (Combines @QueryParams for ID and @Body for the payload)
+  // Update
   @Put(action.UPDATE)
   public async updateHospital(
     @QueryParams() query: HospitalId,
@@ -99,31 +116,46 @@ export default class HospitalController {
     try {
       const updated = await this.hospitalService.updateHospital(body, query);
 
+      if (!updated) {
+        return this.responseService.noDataFound({
+          res,
+          message: "Hospital does not exist"
+        });
+      }
+
       return this.responseService.success({
         res,
         message: messages.HOSPITAL.UPDATE_SUCCESS,
         data: updated
       });
+
     } catch (error) {
       return this.responseService.serverError({ res, error });
     }
   }
 
-  // Delete (Uses @QueryParam to target a single named parameter 'id')
+  // Delete
   @Delete(action.DELETE)
-  public async deleteHospital(
-    @QueryParam("id") id: number,
-    @Res() res: Response
-  ) {
-    try {
-      await this.hospitalService.deleteHospital(id);
+public async deleteHospital(@QueryParam("id") id: number, @Res() res: Response) {
+  try {
+    const deleted = await this.hospitalService.deleteHospital(id);
 
-      return this.responseService.success({
+    if (!deleted) {
+      return this.responseService.noDataFound({
         res,
-        message: messages.HOSPITAL.DELETE_SUCCESS
+        message: "Hospital does not exist"
       });
-    } catch (error) {
-      return this.responseService.serverError({ res, error });
     }
+
+    return this.responseService.success({
+      res,
+      message: messages.HOSPITAL.DELETE_SUCCESS,
+      data: deleted
+    });
+
+  } catch (error) {
+    return this.responseService.serverError({ res, error });
   }
+}
+
 }
