@@ -84,7 +84,7 @@ export class UserService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role?.name,
+        // role: user.role?.name,
       },
     };
   }

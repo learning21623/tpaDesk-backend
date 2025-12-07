@@ -17,8 +17,9 @@ const action = {
 };
 
 const component = {
-  USER: 'user',
   ROLE: 'role',
+  USER: 'user',
+  HOSPITAL: 'hospital',
   POLICY: 'policy',
   CLAIM: 'claim',
 };
