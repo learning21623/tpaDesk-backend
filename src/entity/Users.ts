@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Role } from "./Roles";
+import { Hospital } from "./Hospital"; // <-- Import Hospital entity
 
 @Entity({ name: "users" })
 export class User {
@@ -29,12 +30,20 @@ export class User {
   @Column({ nullable: true, length: 15 })
   mobile?: string;
 
-  @ManyToOne(() => Role, (role) => role.users,  { onDelete: "SET NULL" })
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: "SET NULL" })
   @JoinColumn({ name: "roleId" })
   role!: Role;
 
   @Column({ nullable: true })
   roleId!: number;
+
+  // New fields for Hospital relationship
+  @ManyToOne(() => Hospital, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "hospitalId" })
+  hospital?: Hospital; // Optional relation
+
+  @Column({ nullable: true })
+  hospitalId?: number; // Optional column
 
   @CreateDateColumn()
   createdAt!: Date;

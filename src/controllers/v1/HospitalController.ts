@@ -51,7 +51,7 @@ export default class HospitalController {
       if (req.user?.role !== "superAdmin") {
         return this.responseService.forbidden({
           res,
-          message: "You are not authorized to create hospital"
+          message: "Only SuperAdmin to create hospital"
         });
       }
 

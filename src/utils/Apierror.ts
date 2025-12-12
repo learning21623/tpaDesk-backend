@@ -1,10 +1,17 @@
-import { HttpError } from 'routing-controllers';
+import { HttpError } from "routing-controllers";
 
-export class ApiError extends HttpError {
-  errorCode?: string | undefined;
-    FTA: string | undefined;
+export class ApiError extends Error {
+  httpCode: number;
+  errorCode?: string;
+  FTA?: string;
+
   constructor(status: number, message?: string, FTA?: string) {
-    super(status, message);
+    super(message);
+
+    this.httpCode = status;
     this.errorCode = FTA;
+    this.FTA = FTA;
+
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
 }

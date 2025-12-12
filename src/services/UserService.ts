@@ -12,6 +12,7 @@ import { ApiError } from "../utils/Apierror";
 import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import { generateJwtToken } from "../utils/generateJwtToken";
+import { user } from "../constant/errors/user";
 
 @Service()
 export class UserService {
@@ -50,44 +51,47 @@ export class UserService {
 
   // ======================= LOGIN USER ============================
   public async login(body: any) {
-    const { email, password } = body;
+    const { email, password } = body;
 
-    const user = await this.userRepo.findOne({
-      where: { email },
-      relations: ["role"],
-    });
+    const user = await this.userRepo.findOne({
+      where: { email },
+      relations: ["role", "hospital"], // <-- Load hospital relation
+    });
 
-    if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, messages.USER.NOT_FOUND);
-    }
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, messages.USER.NOT_FOUND);
+    }
 
-    // Compare password
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      throw new ApiError(httpStatus.BAD_REQUEST, messages.USER.INVALID_CREDENTIALS);
-    }
+    // Compare password
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      throw new ApiError(httpStatus.BAD_REQUEST, messages.USER.INVALID_CREDENTIALS);
+    }
 
-    // Create JWT Payload
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role?.name || null,
-    };
+    // Create JWT Payload
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role?.name || null,
+      hospitalId: user.hospitalId || null, // <-- Add Hospital ID
+      hospitalName: user.hospital?.name || null, // <-- Add Hospital Name
+    };
 
-    // Generate JWT Token
-    const token = await generateJwtToken(payload);
+    // Generate JWT Token
+    const token = await generateJwtToken(payload);
 
-    return {
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        // role: user.role?.name,
-      },
-    };
-  }
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        hospitalId: user.hospitalId || null, // <-- Include in user response object
+        // role: user.role?.name,
+      },
+    };
+  }
 
   // ======================= LIST USERS ============================
   public async fetchUsers(query: any) {

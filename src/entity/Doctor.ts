@@ -10,7 +10,7 @@ import {
 import { User } from "./Users";
 import { Hospital } from "./Hospital";
 
-@Entity({ name: "doctors" })
+@Entity({ name: "doctor" })
 export class Doctor {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -21,8 +21,14 @@ export class Doctor {
   @Column()
   hospitalId!: number;
 
-  @Column({ length: 150 })
+  @Column({ type: "varchar", length: 150 })
   specialization!: string;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: "userId" })
@@ -31,10 +37,4 @@ export class Doctor {
   @ManyToOne(() => Hospital)
   @JoinColumn({ name: "hospitalId" })
   hospital!: Hospital;
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
 }

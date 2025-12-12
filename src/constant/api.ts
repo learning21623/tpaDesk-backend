@@ -20,6 +20,7 @@ const component = {
   ROLE: 'role',
   USER: 'user',
   HOSPITAL: 'hospital',
+  DOCTOR: 'doctor',
   POLICY: 'policy',
   CLAIM: 'claim',
 };

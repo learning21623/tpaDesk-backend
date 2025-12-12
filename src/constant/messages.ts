@@ -57,6 +57,25 @@ HOSPITAL: {
   ALREADY_EXISTS: "Hospital with the given details already exists.",
   NOT_FOUND: "Hospital not found."
 },
+// ... inside export default { ... }
+// ... (after HOSPITAL block)
+
+DOCTOR: {
+  ADD_SUCCESS: "Doctor created successfully.",
+  ADD_FAILED: "Doctor creation failed.",
+  LIST_SUCCESS: "Doctor list fetched successfully.",
+  FETCH_SUCCESS: "Doctor details fetched successfully.",
+  UPDATE_SUCCESS: "Doctor updated successfully.",
+  DELETE_SUCCESS: "Doctor deleted successfully.",
+  DELETE_FAILED: "Doctor deletion failed.",
+  ALREADY_EXISTS: "User is already registered as a doctor.",
+  NOT_FOUND: "Doctor not found."
+},
+
+// You also need a message for forbidden access (e.g., in a new ACCESS block)
+ACCESS: {
+  ADMIN_ONLY: "You are not authorized. Only Admin access is allowed."
+},
 
   POLICY: {
     ADD_POLICY_SUCCESS: 'Policy created successfully!',
