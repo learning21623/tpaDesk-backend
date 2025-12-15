@@ -72,6 +72,18 @@ DOCTOR: {
   NOT_FOUND: "Doctor not found."
 },
 
+STAFF: {
+  ADD_SUCCESS: "Staff member created successfully.",
+  ADD_FAILED: "Staff member creation failed.",
+  LIST_SUCCESS: "Staff list fetched successfully.",
+  FETCH_SUCCESS: "Staff details fetched successfully.",
+  UPDATE_SUCCESS: "Staff member updated successfully.",
+  DELETE_SUCCESS: "Staff member deleted successfully.",
+  DELETE_FAILED: "Staff member deletion failed.",
+  ALREADY_EXISTS: "User is already registered as a staff member.",
+  NOT_FOUND: "Staff member not found."
+},
+
 // You also need a message for forbidden access (e.g., in a new ACCESS block)
 ACCESS: {
   ADMIN_ONLY: "You are not authorized. Only Admin access is allowed."
