@@ -7,6 +7,7 @@ import {
   Body,
   QueryParams,
   QueryParam,
+  Req,
   Res
 } from "routing-controllers";
 import { Service } from "typedi";
@@ -22,6 +23,8 @@ import messages from "../../constant/messages";
 import { action, component } from "../../constant/api";
 import { apiRoute } from "../../utils/apiSemver";
 import { Response } from "express";
+import { UseBefore } from "routing-controllers";
+import { AuthMiddleware } from "../../middleware/auth";
 
 @Service()
 @JsonController(apiRoute(component.USER))
@@ -59,6 +62,28 @@ export default class UserController {
       return this.responseService.success({
         res,
         message: messages.USER.USER_LISTING_SUCCESS,
+        data
+      });
+    } catch (error) {
+      return this.responseService.serverError({ res, error });
+    }
+  }
+
+  //Role Base Hospital User List
+  @Get(action.HOSPITAL_USER_LIST)
+  @UseBefore(AuthMiddleware)
+  public async getHospitalOverview(@Req() req: Request & { user?: any }, @Res() res: Response) {
+    try {
+      // Basic security check
+      if (req.user.role !== "superAdmin") {
+        return res.status(403).json({ message: "Access Denied: SuperAdmin only" });
+      }
+
+      const data = await this.userService.fetchHospitalsWithAdmins();
+
+      return res.status(200).json({
+        success: true,
+        message: "Hospital and Admin details fetched successfully",
         data
       });
     } catch (error) {

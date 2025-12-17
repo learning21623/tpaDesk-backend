@@ -10,7 +10,7 @@ import { Response, Request } from "express";
 import { StaffService } from "../../services/StaffService";
 import { ResponseService } from "../../services/ResponseService";
 import { CreateStaff, UpdateStaff, StaffId } from "../../validations/StaffValidation"; // Now properly imported
-import { AuthMiddleware } from "../../middleware/AuthMiddleware"; 
+import { AuthMiddleware } from "../../middleware/auth";
 import messages from "../../constant/messages";
 import { action, component } from "../../constant/api";
 import { apiRoute } from "../../utils/apiSemver";
@@ -34,17 +34,17 @@ export default class StaffController {
   ) {
     try {
       // Access Control
-      if (req.user?.role !== "Admin") {
+      if (req.user?.role !== "admin") {
         return this.responseService.forbidden({ res, message: messages.ACCESS.ADMIN_ONLY });
       }
 
-      // Inject hospitalId from the Admin's token
+      // Inject hospitalId from the admin's token
       const hospitalId = req.user?.hospitalId;
 
       if (!hospitalId) {
         return this.responseService.forbidden({
           res,
-          message: "Admin must be associated with a Hospital to create Staff.",
+          message: "admin must be associated with a Hospital to create Staff.",
         });
       }
 
@@ -55,7 +55,7 @@ export default class StaffController {
 
       return this.responseService.success({
         res,
-        message: messages.STAFF.ADD_SUCCESS, 
+        message: messages.STAFF.ADD_SUCCESS,
         data,
       });
     } catch (error) {
@@ -99,7 +99,7 @@ export default class StaffController {
     @Res() res: Response
   ) {
     try {
-      if (req.user?.role !== "Admin") {
+      if (req.user?.role !== "admin") {
         return this.responseService.forbidden({ res, message: messages.ACCESS.ADMIN_ONLY });
       }
 
@@ -119,7 +119,7 @@ export default class StaffController {
     @Res() res: Response
   ) {
     try {
-      if (req.user?.role !== "Admin") {
+      if (req.user?.role !== "admin") {
         return this.responseService.forbidden({ res, message: messages.ACCESS.ADMIN_ONLY });
       }
 

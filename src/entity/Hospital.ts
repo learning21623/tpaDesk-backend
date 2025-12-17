@@ -1,10 +1,13 @@
+// src/entity/Hospital.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  OneToMany // 👈 Import this
 } from "typeorm";
+import { User } from "./Users"; // 👈 Import User entity
 
 @Entity({ name: "hospital" })
 export class Hospital {
@@ -25,6 +28,10 @@ export class Hospital {
 
   @Column({ nullable: true })
   email?: string;
+
+  // 👇 ADD THIS RELATIONSHIP
+  @OneToMany(() => User, (user) => user.hospital)
+  users!: User[]; 
 
   @CreateDateColumn()
   createdAt!: Date;

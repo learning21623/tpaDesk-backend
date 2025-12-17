@@ -13,14 +13,17 @@ import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import { generateJwtToken } from "../utils/generateJwtToken";
 import { user } from "../constant/errors/user";
+import { Hospital } from "../entity/Hospital";
 
 @Service()
 export class UserService {
 
   private userRepo: Repository<User>;
+  private hospitalRepo: Repository<Hospital>;
 
   constructor() {
     this.userRepo = AppDataSource.getRepository(User);
+    this.hospitalRepo = AppDataSource.getRepository(Hospital);
   }
 
   // ======================= CREATE USER ============================
@@ -51,47 +54,47 @@ export class UserService {
 
   // ======================= LOGIN USER ============================
   public async login(body: any) {
-    const { email, password } = body;
+    const { email, password } = body;
 
-    const user = await this.userRepo.findOne({
-      where: { email },
-      relations: ["role", "hospital"], // <-- Load hospital relation
-    });
+    const user = await this.userRepo.findOne({
+      where: { email },
+      relations: ["role", "hospital"], // <-- Load hospital relation
+    });
 
-    if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, messages.USER.NOT_FOUND);
-    }
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, messages.USER.NOT_FOUND);
+    }
 
-    // Compare password
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      throw new ApiError(httpStatus.BAD_REQUEST, messages.USER.INVALID_CREDENTIALS);
-    }
+    // Compare password
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      throw new ApiError(httpStatus.BAD_REQUEST, messages.USER.INVALID_CREDENTIALS);
+    }
 
-    // Create JWT Payload
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role?.name || null,
+    // Create JWT Payload
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role?.name || null,
       hospitalId: user.hospitalId || null, // <-- Add Hospital ID
       hospitalName: user.hospital?.name || null, // <-- Add Hospital Name
-    };
+    };
 
-    // Generate JWT Token
-    const token = await generateJwtToken(payload);
+    // Generate JWT Token
+    const token = await generateJwtToken(payload);
 
-    return {
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
         hospitalId: user.hospitalId || null, // <-- Include in user response object
-        // role: user.role?.name,
-      },
-    };
-  }
+        // role: user.role?.name,
+      },
+    };
+  }
 
   // ======================= LIST USERS ============================
   public async fetchUsers(query: any) {
@@ -99,13 +102,13 @@ export class UserService {
 
     const condition = search
       ? {
-          where: [
-            { firstName: Like(`%${search}%`) },
-            { lastName: Like(`%${search}%`) },
-            { email: Like(`%${search}%`) },
-          ],
-          relations: ["role"],
-        }
+        where: [
+          { firstName: Like(`%${search}%`) },
+          { lastName: Like(`%${search}%`) },
+          { email: Like(`%${search}%`) },
+        ],
+        relations: ["role"],
+      }
       : { relations: ["role"] };
 
     const count = await this.userRepo.count(condition);
@@ -113,6 +116,35 @@ export class UserService {
 
     return { count, users };
   }
+
+  //Role Based User Hosptial Listing
+  // UserService.ts
+
+public async fetchHospitalsWithAdmins() {
+  // Use the Repository for the Hospital entity
+  
+
+  const data = await this.hospitalRepo
+    .createQueryBuilder("hospital")
+    .leftJoinAndSelect(
+      "hospital.users", // 👈 This now works because users is defined in Hospital entity
+      "user", 
+      "user.roleId = :roleId", 
+      { roleId: 2 } // roleId 2 is Admin
+    )
+    .select([
+      "hospital.id",
+      "hospital.name",
+      "hospital.email",
+      "user.id",
+      "user.firstName",
+      "user.lastName",
+      "user.email"
+    ])
+    .getMany();
+
+  return data;
+}
 
   // ======================= DETAILS ============================
   public async fetchDetails({ id }: { id: number }) {
@@ -125,46 +157,46 @@ export class UserService {
   }
 
   // ======================= UPDATE USER ============================
- public async updateUser(body: any, { id }: { id: number }) {
-  const userToUpdate = await this.userRepo.findOne({
-    where: { id },
-    relations: ["role"],
-  });
-
-  if (!userToUpdate) {
-    throw new ApiError(httpStatus.NOT_FOUND, messages.USER.NOT_FOUND);
-  }
-
-  // Remove relation to prevent overwrite issues
-  delete userToUpdate.role;
-
-  // Duplicate email
-  if (body.email) {
-    const exists = await this.userRepo.findOne({
-      where: { email: body.email },
+  public async updateUser(body: any, { id }: { id: number }) {
+    const userToUpdate = await this.userRepo.findOne({
+      where: { id },
+      relations: ["role"],
     });
 
-    if (exists && exists.id !== id) {
-      throw new ApiError(httpStatus.CONFLICT, messages.USER.ALREADY_EXISTS);
+    if (!userToUpdate) {
+      throw new ApiError(httpStatus.NOT_FOUND, messages.USER.NOT_FOUND);
     }
+
+    // Remove relation to prevent overwrite issues
+    delete userToUpdate.role;
+
+    // Duplicate email
+    if (body.email) {
+      const exists = await this.userRepo.findOne({
+        where: { email: body.email },
+      });
+
+      if (exists && exists.id !== id) {
+        throw new ApiError(httpStatus.CONFLICT, messages.USER.ALREADY_EXISTS);
+      }
+    }
+
+    // Password change
+    if (body.password) {
+      body.password = await bcrypt.hash(body.password, 10);
+    }
+
+    // Merge new data
+    Object.assign(userToUpdate, body);
+
+    // Save updated user
+    await this.userRepo.save(userToUpdate);
+
+    return await this.userRepo.findOne({
+      where: { id },
+      relations: ["role"],
+    });
   }
-
-  // Password change
-  if (body.password) {
-    body.password = await bcrypt.hash(body.password, 10);
-  }
-
-  // Merge new data
-  Object.assign(userToUpdate, body);
-
-  // Save updated user
-  await this.userRepo.save(userToUpdate);
-
-  return await this.userRepo.findOne({
-    where: { id },
-    relations: ["role"],
-  });
-}
 
 
 

@@ -1,5 +1,6 @@
 const action = {
   ADD: '/add',
+  HOSPITAL_USER_LIST: '/hospital-users',
   LIST: '/list',
   UPDATE: '/update',
   DELETE: '/delete',

@@ -38,12 +38,12 @@ export class User {
   roleId!: number;
 
   // New fields for Hospital relationship
-  @ManyToOne(() => Hospital, { nullable: true, onDelete: "SET NULL" })
+ @ManyToOne(() => Hospital, (hospital) => hospital.users, { nullable: true, onDelete: "SET NULL" })
   @JoinColumn({ name: "hospitalId" })
-  hospital?: Hospital; // Optional relation
+  hospital?: Hospital;
 
   @Column({ nullable: true })
-  hospitalId?: number; // Optional column
+  hospitalId?: number;
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -46,20 +46,20 @@ export default class DoctorController {
   ) {
     try {
       // 1. Access Control: Only Admins can create Doctors
-      if (req.user?.role !== "Admin") {
+      if (req.user?.role !== "admin") {
         return this.responseService.forbidden({
           res,
           message: messages.ACCESS.ADMIN_ONLY,
         });
       }
 
-      // 2. Inject hospitalId from the Admin's token (hospitalId: 1 in your case)
+      // 2. Inject hospitalId from the admin's token (hospitalId: 1 in your case)
       const hospitalId = req.user?.hospitalId;
 
       if (!hospitalId) {
         return this.responseService.forbidden({
           res,
-          message: "Admin must be associated with a Hospital to create a Doctor.",
+          message: "admin must be associated with a Hospital to create a Doctor.",
         });
       }
 
@@ -127,7 +127,7 @@ export default class DoctorController {
     @Res() res: Response
   ) {
     try {
-      if (req.user?.role !== "Admin") {
+      if (req.user?.role !== "admin") {
         return this.responseService.forbidden({
           res,
           message: messages.ACCESS.ADMIN_ONLY,
@@ -158,7 +158,7 @@ export default class DoctorController {
     @Res() res: Response
   ) {
     try {
-      if (req.user?.role !== "Admin") {
+      if (req.user?.role !== "admin") {
         return this.responseService.forbidden({
           res,
           message: messages.ACCESS.ADMIN_ONLY,
