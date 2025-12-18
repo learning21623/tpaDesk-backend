@@ -97,25 +97,47 @@ export class UserService {
   }
 
   // ======================= LIST USERS ============================
-  public async fetchUsers(query: any) {
-    let search = query.search || null;
+  // ======================= LIST USERS ============================
+public async fetchUsers(query: any) {
+    // 1. Extract and Parse Pagination Params
+    const page = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const search = query.search || "";
 
-    const condition = search
-      ? {
-        where: [
-          { firstName: Like(`%${search}%`) },
-          { lastName: Like(`%${search}%`) },
-          { email: Like(`%${search}%`) },
-        ],
+    // 2. Build Query Condition
+    const condition: any = {
         relations: ["role"],
-      }
-      : { relations: ["role"] };
+        order: { createdAt: "DESC" }, // Most recent first
+        take: limit,
+        skip: skip,
+    };
 
-    const count = await this.userRepo.count(condition);
-    const users = await this.userRepo.find(condition);
+    // 3. Add Search Logic if search string exists
+    if (search) {
+        condition.where = [
+            { firstName: Like(`%${search}%`) },
+            { lastName: Like(`%${search}%`) },
+            { email: Like(`%${search}%`) },
+        ];
+    }
 
-    return { count, users };
-  }
+    // 4. Execute Query
+    const [users, count] = await this.userRepo.findAndCount(condition);
+
+    // 5. Security: Remove passwords from the response
+    const safeUsers = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    });
+
+    return { 
+        total: count,
+        currentPage: page,
+        totalPages: Math.ceil(count / limit),
+        users: safeUsers 
+    };
+}
 
   //Role Based User Hosptial Listing
   // UserService.ts
