@@ -161,7 +161,8 @@ public async fetchHospitalsWithAdmins() {
       "user.id",
       "user.firstName",
       "user.lastName",
-      "user.email"
+      "user.email",
+      "user.mobile"
     ])
     .getMany();
 
