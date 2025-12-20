@@ -45,8 +45,11 @@ export class DoctorService {
   }
 
   // LIST
-  async fetchDoctors() {
+  async fetchDoctors(hospitalId?: number) {
+    const whereCondition = hospitalId ? { hospitalId } : {};
+    
     return await this.doctorRepo.find({
+      where: whereCondition,
       relations: ["user", "hospital"]
     });
   }

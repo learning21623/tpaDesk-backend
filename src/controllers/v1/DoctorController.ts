@@ -21,7 +21,7 @@ import { DoctorService } from "../../services/DoctorService";
 import { ResponseService } from "../../services/ResponseService"; // For consistent response formatting
 
 // Assuming these exist for validation/type checking
-import { CreateDoctor, UpdateDoctor, DoctorId } from "../../validations/DoctorValidation"; 
+import { CreateDoctor, UpdateDoctor, DoctorId } from "../../validations/DoctorValidation";
 import { AuthMiddleware } from "../../middleware/AuthMiddleware"; // To decode JWT and attach req.user
 
 import messages from "../../constant/messages";
@@ -81,9 +81,30 @@ export default class DoctorController {
 
   // ======================= GET LIST (R) =======================
   @Get(action.LIST)
-  public async listDoctors(@Res() res: Response) {
+  public async listDoctors(
+    @Req() req: Request & { user?: any },
+    @Res() res: Response
+  ) {
     try {
-      const data = await this.doctorService.fetchDoctors();
+      // 1. Identify the logged-in user's role and hospital context
+      const role = req.user?.role;
+      const adminHospitalId = req.user?.hospitalId;
+
+      let data;
+
+      // 2. Filter logic based on role
+      if (role === "admin") {
+        // If Admin, only fetch doctors for THEIR hospitalId (e.g., ID: 1)
+        data = await this.doctorService.fetchDoctors(adminHospitalId);
+      // } else if (role === "superAdmin") {
+      //   // SuperAdmins can see everything
+      //   data = await this.doctorService.fetchDoctors();
+      } else {
+        return this.responseService.forbidden({
+          res,
+          message: "You do not have permission to view the doctor list.",
+        });
+      }
 
       return this.responseService.success({
         res,
@@ -136,8 +157,8 @@ export default class DoctorController {
 
       // Call the service with the doctor ID and the body data
       const updated = await this.doctorService.updateDoctor(
-        query.id, 
-        body       
+        query.id,
+        body
       );
 
       return this.responseService.success({
