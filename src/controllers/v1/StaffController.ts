@@ -65,14 +65,39 @@ export default class StaffController {
 
   // ======================= GET LIST (R) =======================
   @Get(action.LIST)
-  public async listStaff(@Res() res: Response) {
+  public async listStaff(
+    @Req() req: Request & { user?: any },
+    @Res() res: Response
+  ) {
     try {
-      const data = await this.staffService.fetchStaff();
-      return this.responseService.success({ res, message: messages.STAFF.LIST_SUCCESS, data });
+      if (req.user?.role !== "admin") {
+        return this.responseService.forbidden({
+          res,
+          message: messages.ACCESS.ADMIN_ONLY,
+        });
+      }
+
+      const hospitalId = req.user?.hospitalId;
+
+      if (!hospitalId) {
+        return this.responseService.forbidden({
+          res,
+          message: "Admin must belong to a hospital",
+        });
+      }
+
+      const data = await this.staffService.fetchStaffByHospital(hospitalId);
+
+      return this.responseService.success({
+        res,
+        message: messages.STAFF.LIST_SUCCESS,
+        data,
+      });
     } catch (error) {
       return this.responseService.serverError({ res, error });
     }
   }
+
 
   // ======================= GET DETAILS (R) =======================
   @Get(action.DETAIL)

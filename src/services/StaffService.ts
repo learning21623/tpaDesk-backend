@@ -65,11 +65,12 @@ export class StaffService {
   }
 
   // ======================= LIST STAFF (R) =======================
-  async fetchStaff() {
-    return await this.staffRepo.find({
-      relations: ["user", "hospital", "assignedDoctor"]
-    });
-  }
+  async fetchStaffByHospital(hospitalId: number) {
+  return await this.staffRepo.find({
+    where: { hospitalId },
+    relations: ["user", "hospital", "assignedDoctor"],
+  });
+}
 
   // ... (Other CRUD methods are the same) ...
 

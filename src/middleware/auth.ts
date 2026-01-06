@@ -1,4 +1,3 @@
-// src/middleware/AuthMiddleware.ts
 import { ExpressMiddlewareInterface } from "routing-controllers";
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
@@ -8,27 +7,25 @@ import jwt from "jsonwebtoken";
 export class AuthMiddleware implements ExpressMiddlewareInterface {
   use(req: Request & { user?: any }, res: Response, next: NextFunction): any {
     try {
-      const authHeader = req.headers["authorization"];
-      if (!authHeader) {
-        return res.status(401).json({ message: "No Authorization header" });
+      const authHeader = req.headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "No or invalid Authorization header" });
       }
 
       const token = authHeader.split(" ")[1];
-      if (!token) {
-        return res.status(401).json({ message: "Missing token" });
-      }
 
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as any;
 
-      req.user = {
-        id: decoded.id,
-        email: decoded.email,
-        role: decoded.role
-      };
+      // ✅ IMPORTANT FIX
+      req.user = decoded;
 
       return next();
     } catch (error) {
-      return res.status(401).json({ message: "Invalid token", error });
+      return res.status(401).json({ message: "Invalid token" });
     }
   }
 }
