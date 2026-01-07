@@ -2,6 +2,7 @@ import { Service } from "typedi";
 import AppDataSource from "../config/dbconfig";
 import { Hospital } from "../entity/Hospital";
 import { User } from "../entity/Users";
+import bcrypt from "bcrypt";
 
 @Service()
 export class HospitalService {
@@ -27,11 +28,13 @@ export class HospitalService {
       const firstName = nameParts[0];
       const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "User";
 
+      const hashedPassword = await bcrypt.hash("Password@123", 10);
+
       const newUser = transactionalEntityManager.create(User, {
         firstName: firstName,
         lastName: lastName,
         email: body.email, // Using hospital email as the default admin login
-        password: "Password@123", // Set a default temporary password
+        password: hashedPassword, // Set a default temporary password
         roleId: 2,                // 🔥 Admin Role ID
         hospitalId: savedHospital.id, // Linking to the newly created hospital
         mobile: body.phone
