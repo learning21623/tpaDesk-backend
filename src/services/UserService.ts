@@ -12,7 +12,6 @@ import { ApiError } from "../utils/Apierror";
 import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import { generateJwtToken } from "../utils/generateJwtToken";
-import { user } from "../constant/errors/user";
 import { Hospital } from "../entity/Hospital";
 
 @Service()
@@ -53,12 +52,16 @@ export class UserService {
   }
 
   // ======================= LOGIN USER ============================
+  // UserService.ts
+
+  // ======================= LOGIN USER ============================
   public async login(body: any) {
     const { email, password } = body;
 
     const user = await this.userRepo.findOne({
       where: { email },
-      relations: ["role", "hospital"], // <-- Load hospital relation
+      // ADD "doctor" to the relations array here
+      relations: ["role", "hospital", "staff", "doctor"], 
     });
 
     if (!user) {
@@ -71,13 +74,15 @@ export class UserService {
       throw new ApiError(httpStatus.BAD_REQUEST, messages.USER.INVALID_CREDENTIALS);
     }
 
-    // Create JWT Payload
+    // Create JWT Payload with both staffId and doctorId
     const payload = {
       id: user.id,
       email: user.email,
       role: user.role?.name || null,
-      hospitalId: user.hospitalId || null, // <-- Add Hospital ID
-      hospitalName: user.hospital?.name || null, // <-- Add Hospital Name
+      hospitalId: user.hospitalId || null,
+      hospitalName: user.hospital?.name || null,
+      staffId: user.staff?.id || null, 
+      doctorId: user.doctor?.id || null, // Now populated from relations
     };
 
     // Generate JWT Token
@@ -90,15 +95,16 @@ export class UserService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        hospitalId: user.hospitalId || null, // <-- Include in user response object
-        // role: user.role?.name,
+        role: payload.role,
+        hospitalId: user.hospitalId || null,
+        staffId: user.staff?.id || null,
+        doctorId: user.doctor?.id || null, // Include in response
       },
     };
   }
 
   // ======================= LIST USERS ============================
-  // ======================= LIST USERS ============================
-public async fetchUsers(query: any) {
+  public async fetchUsers(query: any) {
     // 1. Extract and Parse Pagination Params
     const page = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
@@ -107,19 +113,19 @@ public async fetchUsers(query: any) {
 
     // 2. Build Query Condition
     const condition: any = {
-        relations: ["role"],
-        order: { createdAt: "DESC" }, // Most recent first
-        take: limit,
-        skip: skip,
+      relations: ["role"],
+      order: { createdAt: "DESC" }, // Most recent first
+      take: limit,
+      skip: skip,
     };
 
     // 3. Add Search Logic if search string exists
     if (search) {
-        condition.where = [
-            { firstName: Like(`%${search}%`) },
-            { lastName: Like(`%${search}%`) },
-            { email: Like(`%${search}%`) },
-        ];
+      condition.where = [
+        { firstName: Like(`%${search}%`) },
+        { lastName: Like(`%${search}%`) },
+        { email: Like(`%${search}%`) },
+      ];
     }
 
     // 4. Execute Query
@@ -127,47 +133,47 @@ public async fetchUsers(query: any) {
 
     // 5. Security: Remove passwords from the response
     const safeUsers = users.map(user => {
-        const { password, ...userWithoutPassword } = user;
-        return userWithoutPassword;
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
     });
 
-    return { 
-        total: count,
-        currentPage: page,
-        totalPages: Math.ceil(count / limit),
-        users: safeUsers 
+    return {
+      total: count,
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
+      users: safeUsers
     };
-}
+  }
 
   //Role Based User Hosptial Listing
   // UserService.ts
 
-public async fetchHospitalsWithAdmins() {
-  // Use the Repository for the Hospital entity
-  
+  public async fetchHospitalsWithAdmins() {
+    // Use the Repository for the Hospital entity
 
-  const data = await this.hospitalRepo
-    .createQueryBuilder("hospital")
-    .leftJoinAndSelect(
-      "hospital.users", // 👈 This now works because users is defined in Hospital entity
-      "user", 
-      "user.roleId = :roleId", 
-      { roleId: 2 } // roleId 2 is Admin
-    )
-    .select([
-      "hospital.id",
-      "hospital.name",
-      "hospital.email",
-      "user.id",
-      "user.firstName",
-      "user.lastName",
-      "user.email",
-      "user.mobile"
-    ])
-    .getMany();
 
-  return data;
-}
+    const data = await this.hospitalRepo
+      .createQueryBuilder("hospital")
+      .leftJoinAndSelect(
+        "hospital.users", // 👈 This now works because users is defined in Hospital entity
+        "user",
+        "user.roleId = :roleId",
+        { roleId: 2 } // roleId 2 is Admin
+      )
+      .select([
+        "hospital.id",
+        "hospital.name",
+        "hospital.email",
+        "user.id",
+        "user.firstName",
+        "user.lastName",
+        "user.email",
+        "user.mobile"
+      ])
+      .getMany();
+
+    return data;
+  }
 
   // ======================= DETAILS ============================
   public async fetchDetails({ id }: { id: number }) {

@@ -5,10 +5,16 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
-  UpdateDateColumn
 } from "typeorm";
 import { Patient } from "./Patient";
 import { Staff } from "./Staff";
+
+export enum PatientDocumentType {
+  PAN = "PAN",
+  AADHAR = "AADHAR",
+  POLICY = "POLICY",
+  OTHER = "OTHER",
+}
 
 @Entity({ name: "patient_documents" })
 export class PatientDocument {
@@ -21,13 +27,19 @@ export class PatientDocument {
   @Column()
   uploadedByStaffId!: number;
 
+  @Column({
+    type: "enum",
+    enum: PatientDocumentType,
+  })
+  documentType!: PatientDocumentType;
+
   @Column()
   fileName!: string;
 
   @Column()
   filePath!: string;
 
-  @ManyToOne(() => Patient)
+  @ManyToOne(() => Patient, { onDelete: "CASCADE" })
   @JoinColumn({ name: "patientId" })
   patient!: Patient;
 
@@ -37,7 +49,4 @@ export class PatientDocument {
 
   @CreateDateColumn()
   createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
 }

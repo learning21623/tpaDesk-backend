@@ -46,48 +46,60 @@ export default {
     DELETE_USER_FAILED: 'User delete has failed!',
     DELETE_USER_SUCCESS: 'User deleted successfully!',
   },
-HOSPITAL: {
-  ADD_SUCCESS: "Hospital created successfully.",
-  ADD_FAILED: "Hospital creation failed.",
-  LIST_SUCCESS: "Hospital list fetched successfully.",
-  FETCH_SUCCESS: "Hospital details fetched successfully.",
-  UPDATE_SUCCESS: "Hospital updated successfully.",
-  DELETE_SUCCESS: "Hospital deleted successfully.",
-  DELETE_FAILED: "Hospital deletion failed.",
-  ALREADY_EXISTS: "Hospital with the given details already exists.",
-  NOT_FOUND: "Hospital not found."
-},
-// ... inside export default { ... }
-// ... (after HOSPITAL block)
+  HOSPITAL: {
+    ADD_SUCCESS: "Hospital created successfully.",
+    ADD_FAILED: "Hospital creation failed.",
+    LIST_SUCCESS: "Hospital list fetched successfully.",
+    FETCH_SUCCESS: "Hospital details fetched successfully.",
+    UPDATE_SUCCESS: "Hospital updated successfully.",
+    DELETE_SUCCESS: "Hospital deleted successfully.",
+    DELETE_FAILED: "Hospital deletion failed.",
+    ALREADY_EXISTS: "Hospital with the given details already exists.",
+    NOT_FOUND: "Hospital not found."
+  },
 
-DOCTOR: {
-  ADD_SUCCESS: "Doctor created successfully.",
-  ADD_FAILED: "Doctor creation failed.",
-  LIST_SUCCESS: "Doctor list fetched successfully.",
-  FETCH_SUCCESS: "Doctor details fetched successfully.",
-  UPDATE_SUCCESS: "Doctor updated successfully.",
-  DELETE_SUCCESS: "Doctor deleted successfully.",
-  DELETE_FAILED: "Doctor deletion failed.",
-  ALREADY_EXISTS: "User is already registered as a doctor.",
-  NOT_FOUND: "Doctor not found."
-},
+  DOCTOR: {
+    ADD_SUCCESS: "Doctor created successfully.",
+    ADD_FAILED: "Doctor creation failed.",
+    LIST_SUCCESS: "Doctor list fetched successfully.",
+    FETCH_SUCCESS: "Doctor details fetched successfully.",
+    UPDATE_SUCCESS: "Doctor updated successfully.",
+    DELETE_SUCCESS: "Doctor deleted successfully.",
+    DELETE_FAILED: "Doctor deletion failed.",
+    ALREADY_EXISTS: "User is already registered as a doctor.",
+    NOT_FOUND: "Doctor not found."
+  },
 
-STAFF: {
-  ADD_SUCCESS: "Staff member created successfully.",
-  ADD_FAILED: "Staff member creation failed.",
-  LIST_SUCCESS: "Staff list fetched successfully.",
-  FETCH_SUCCESS: "Staff details fetched successfully.",
-  UPDATE_SUCCESS: "Staff member updated successfully.",
-  DELETE_SUCCESS: "Staff member deleted successfully.",
-  DELETE_FAILED: "Staff member deletion failed.",
-  ALREADY_EXISTS: "User is already registered as a staff member.",
-  NOT_FOUND: "Staff member not found."
-},
+  STAFF: {
+    ADD_SUCCESS: "Staff member created successfully.",
+    ADD_FAILED: "Staff member creation failed.",
+    LIST_SUCCESS: "Staff list fetched successfully.",
+    FETCH_SUCCESS: "Staff details fetched successfully.",
+    UPDATE_SUCCESS: "Staff member updated successfully.",
+    DELETE_SUCCESS: "Staff member deleted successfully.",
+    DELETE_FAILED: "Staff member deletion failed.",
+    ALREADY_EXISTS: "User is already registered as a staff member.",
+    NOT_FOUND: "Staff member not found."
+  },
+  PATIENT: {
+    ADD_SUCCESS: "Patient created successfully.",
+    ADD_FAILED: "Patient creation failed.",
+    LIST_SUCCESS: "Patient list fetched successfully.",
+    FETCH_SUCCESS: "Patient details fetched successfully.",
+    UPDATE_SUCCESS: "Patient updated successfully.",
+    DELETE_SUCCESS: "Patient deleted successfully.",
+    NOT_FOUND: "Patient not found."
+  },
 
-// You also need a message for forbidden access (e.g., in a new ACCESS block)
-ACCESS: {
-  ADMIN_ONLY: "You are not authorized. Only Admin access is allowed."
-},
+  // You also need a message for forbidden access (e.g., in a new ACCESS block)
+  ACCESS: {
+    ADMIN_ONLY: "You are not authorized. Only Admin access is allowed.",
+    STAFF_ONLY: "You are not authorized. Only Staff access is allowed.",
+    DOCTOR_ONLY: "You are not authorized. Only Doctor access is allowed.",
+    STAFF_DOCTOR_ONLY: "You are not authorized. Only Staff or Doctor access is allowed.",
+    
+    NOT_ALLOWED: "You are not authorized to perform this action."
+  },
 
   POLICY: {
     ADD_POLICY_SUCCESS: 'Policy created successfully!',

@@ -6,7 +6,7 @@ import { Anything } from '../types/json';
 import { HttpError } from 'routing-controllers';
 import config from '../config/config';
 import { Service } from 'typedi';
-import errorMessages from '../constant/errorMessage';
+// import errorMessages from '../constant/errorMessage';
 import path from 'path';
 import { promisify } from 'util';
 
@@ -183,7 +183,7 @@ export class ResponseService {
       responseMessage = error.message;
       if (responseStatus === httpStatus.UNPROCESSABLE_ENTITY) {
         data = [error.message];
-        responseMessage = errorMessages.validation.INVALID_DATA.errorMessage;
+        // responseMessage = errorMessages.validation.INVALID_DATA.errorMessage;
       }
       // We're returning blitz code as well!
       responseFTA = error['FTA'];

@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
 import { useContainer, useExpressServer } from 'routing-controllers';
-import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';

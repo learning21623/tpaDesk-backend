@@ -5,12 +5,12 @@ import {
   TableForeignKey,
 } from "typeorm";
 
-export class PatientDocuments1764773841506
+export class PatientHistories1767799358185
   implements MigrationInterface {
   public async up(q: QueryRunner): Promise<void> {
     await q.createTable(
       new Table({
-        name: "patient_documents",
+        name: "patient_histories",
         columns: [
           {
             name: "id",
@@ -20,14 +20,14 @@ export class PatientDocuments1764773841506
             generationStrategy: "increment",
           },
           { name: "patientId", type: "int" },
-          { name: "uploadedByStaffId", type: "int" },
+          { name: "staffId", type: "int" },
           {
-            name: "documentType",
+            name: "status",
             type: "enum",
-            enum: ["PAN", "AADHAR", "POLICY", "OTHER"],
+            enum: ["process", "pending", "accepted", "rejected"],
           },
-          { name: "fileName", type: "varchar", length: "255" },
-          { name: "filePath", type: "varchar", length: "1000" },
+          { name: "note", type: "text", isNullable: true },
+          { name: "reason", type: "text", isNullable: true },
           {
             name: "createdAt",
             type: "timestamp",
@@ -38,7 +38,7 @@ export class PatientDocuments1764773841506
     );
 
     await q.createForeignKey(
-      "patient_documents",
+      "patient_histories",
       new TableForeignKey({
         columnNames: ["patientId"],
         referencedTableName: "patients",
@@ -48,9 +48,9 @@ export class PatientDocuments1764773841506
     );
 
     await q.createForeignKey(
-      "patient_documents",
+      "patient_histories",
       new TableForeignKey({
-        columnNames: ["uploadedByStaffId"],
+        columnNames: ["staffId"],
         referencedTableName: "staff",
         referencedColumnNames: ["id"],
         onDelete: "RESTRICT",
@@ -59,6 +59,6 @@ export class PatientDocuments1764773841506
   }
 
   public async down(q: QueryRunner): Promise<void> {
-    await q.dropTable("patient_documents");
+    await q.dropTable("patient_histories");
   }
 }

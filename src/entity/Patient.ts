@@ -2,14 +2,16 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
+  OneToMany,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from "typeorm";
-import { Hospital } from "./Hospital";
+import { PatientHistory } from "./PatientHistory";
+import { PatientAmount } from "./PatientAmount";
+import { PatientMedical } from "./PatientMedical";
+import { PatientDocument } from "./PatientDocument";
 
-@Entity({ name: "patients" })
+@Entity("patients")
 export class Patient {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -29,9 +31,20 @@ export class Patient {
   @Column({ nullable: true })
   gender?: string;
 
-  @ManyToOne(() => Hospital)
-  @JoinColumn({ name: "hospitalId" })
-  hospital!: Hospital;
+  @Column({ nullable: true })
+  address?: string;
+
+  @OneToMany(() => PatientHistory, (h) => h.patient)
+  histories!: PatientHistory[];
+
+  @OneToMany(() => PatientAmount, (a) => a.patient)
+  amount!: PatientAmount[];
+
+  @OneToMany(() => PatientMedical, (m) => m.patient)
+  medical!: PatientMedical[];
+
+  @OneToMany(() => PatientDocument, (d) => d.patient)
+  documents!: PatientDocument[];
 
   @CreateDateColumn()
   createdAt!: Date;
