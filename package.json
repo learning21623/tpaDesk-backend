@@ -21,6 +21,8 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/config/dbconfig.ts",
     "migration:revertLatest": "typeorm-ts-node-commonjs migration:revert -d ./src/config/dbconfig.ts",
+    "migration:dev:run": "env-cmd -f ./.env.dev typeorm-ts-node-commonjs migration:run -d ./src/config/dbconfig.ts",
+    "migration:dev:revertLatest": "env-cmd -f ./.env.dev typeorm-ts-node-commonjs migration:revert -d ./src/config/dbconfig.ts",
     "migration:production:run": "env-cmd -f ./.env.production typeorm-ts-node-commonjs migration:run -d ./src/config/dbconfig.ts",
     "migration:production:revertLatest": "env-cmd -f ./.env.production typeorm-ts-node-commonjs migration:revert -d ./src/config/dbconfig.ts"
   },
