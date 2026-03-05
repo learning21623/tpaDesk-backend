@@ -28,7 +28,7 @@ export class HospitalService {
       const firstName = nameParts[0];
       const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "User";
 
-      const hashedPassword = await bcrypt.hash("Password@123", 10);
+      const hashedPassword = await bcrypt.hash("123456", 10);
 
       const newUser = transactionalEntityManager.create(User, {
         firstName: firstName,

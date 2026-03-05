@@ -1,8 +1,8 @@
-import { MigrationInterface, QueryRunner , Table, TableForeignKey} from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
 export class Claim1764773981922 implements MigrationInterface {
 
-    public async up(q: QueryRunner): Promise<void> {
+  public async up(q: QueryRunner): Promise<void> {
     await q.createTable(
       new Table({
         name: "claim",
@@ -22,7 +22,7 @@ export class Claim1764773981922 implements MigrationInterface {
       "claim",
       new TableForeignKey({
         columnNames: ["patientId"],
-        referencedTableName: "patient",
+        referencedTableName: "patients",
         referencedColumnNames: ["id"],
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
