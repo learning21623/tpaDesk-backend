@@ -36,7 +36,13 @@ async function start() {
 
     // Set up controller-based routes with CORS enabled
     useExpressServer(app, {
-      cors: config.corsOptions,
+      cors: {
+        origin: [
+          "http://localhost:3000",
+          "https://frontend-icms.onrender.com"
+        ],
+        credentials: true
+      },
       controllers: [path.join(__dirname, '/controllers/v*/*Controller.{ts,js}')],
       middlewares: [path.join(__dirname, '/middleware/*.{ts,js}')],
     });
