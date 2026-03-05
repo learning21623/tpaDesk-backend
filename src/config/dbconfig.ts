@@ -20,7 +20,10 @@ const AppDataSource = new DataSource({
   logging: true,
   entities: [path.join(__dirname, '../entity/*.[tj]s')],
   migrations: [path.join(__dirname, '../migration/*.[tj]s')],
-  ssl: env === "production" ? { rejectUnauthorized: true } : false,
+  // ssl: env === "production" ? { rejectUnauthorized: true } : false,
+  ssl: {
+  rejectUnauthorized: false,
+},
   extra: {
     max: 10, // max number of connections in the pool
     idleTimeoutMillis: 30000, // close idle clients after 30 seconds
