@@ -7,11 +7,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn
 } from "typeorm";
+
 import { User } from "./Users";
 import { Hospital } from "./Hospital";
 
 @Entity({ name: "doctor" })
 export class Doctor {
+
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -23,6 +25,18 @@ export class Doctor {
 
   @Column({ type: "varchar", length: 150 })
   specialization!: string;
+
+  @Column({ type: "varchar", length: 150 })
+  department!: string;
+
+  @Column({
+    type: "enum",
+    enum: ["junior", "senior", "consultant"]
+  })
+  designation!: string;
+
+  @Column({ type: "varchar", length: 100 })
+  registrationNumber!: string;
 
   @CreateDateColumn()
   createdAt!: Date;

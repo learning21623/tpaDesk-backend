@@ -10,6 +10,7 @@ import { HospitalService } from "./HospitalService";
 
 @Service()
 export class DoctorService {
+
   private doctorRepo: Repository<Doctor>;
 
   constructor(
@@ -22,63 +23,91 @@ export class DoctorService {
     this.doctorRepo = AppDataSource.getRepository(Doctor);
   }
 
-  // CREATE DOCTOR
+  // ================= CREATE DOCTOR =================
   async createDoctor(data: any) {
-    const { userId, hospitalId, specialization } = data;
+
+    const {
+      userId,
+      hospitalId,
+      specialization,
+      department,
+      designation,
+      registrationNumber
+    } = data;
 
     const user = await this.userService.fetchDetails({ id: userId });
-    if (!user) throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+    if (!user)
+      throw new ApiError(httpStatus.NOT_FOUND, "User not found");
 
     const hospital = await this.hospitalService.fetchDetails({ id: hospitalId });
-    if (!hospital) throw new ApiError(httpStatus.NOT_FOUND, "Hospital not found");
+    if (!hospital)
+      throw new ApiError(httpStatus.NOT_FOUND, "Hospital not found");
 
     const existing = await this.doctorRepo.findOne({ where: { userId } });
-    if (existing) throw new ApiError(httpStatus.CONFLICT, "Doctor already exists");
+    if (existing)
+      throw new ApiError(httpStatus.CONFLICT, "Doctor already exists");
 
     const doctor = this.doctorRepo.create({
       userId,
       hospitalId,
-      specialization
+      specialization,
+      department,
+      designation,
+      registrationNumber
     });
 
     return await this.doctorRepo.save(doctor);
   }
 
-  // LIST
+  // ================= LIST =================
   async fetchDoctors(hospitalId?: number) {
+
     const whereCondition = hospitalId ? { hospitalId } : {};
-    
+
     return await this.doctorRepo.find({
       where: whereCondition,
       relations: ["user", "hospital"]
     });
+
   }
 
-  // DETAILS
+  // ================= DETAILS =================
   async fetchDetails(id: number) {
+
     return await this.doctorRepo.findOne({
       where: { id },
       relations: ["user", "hospital"]
     });
+
   }
 
-  // UPDATE
+  // ================= UPDATE =================
   async updateDoctor(id: number, data: any) {
+
     const doctor = await this.doctorRepo.findOne({ where: { id } });
-    if (!doctor) throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");
+
+    if (!doctor)
+      throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");
 
     Object.assign(doctor, data);
+
     await this.doctorRepo.save(doctor);
 
     return this.fetchDetails(id);
+
   }
 
-  // DELETE
+  // ================= DELETE =================
   async deleteDoctor(id: number) {
+
     const doctor = await this.doctorRepo.findOne({ where: { id } });
-    if (!doctor) throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");
+
+    if (!doctor)
+      throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");
 
     await this.doctorRepo.remove(doctor);
+
     return doctor;
+
   }
 }
